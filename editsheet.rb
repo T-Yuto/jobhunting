@@ -30,9 +30,10 @@ def set_entered_data(row, w_sheet)
   return line
 end
 
-def list_i_name(i, name) 2
+def list_i_name(i, name)
   puts "------------------------------"
-  puts "#{i}  #{name}" end
+  puts "#{i}  #{name}"
+end
 
 # def sort_phase(data)
 #   phase = data[5]
@@ -76,7 +77,9 @@ def link_menu(num, entered_data)
 end
 
 def list_display(entered_data)
-  puts "----- list company -----"
+  puts "#########################"
+  puts "----- list company  -----"
+  puts "#########################"
   puts entered_data.map.with_index { |data, i| list_i_name(i - 12, data[1]) if i >= 12 }
   start(entered_data)
 end
