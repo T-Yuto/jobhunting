@@ -40,18 +40,18 @@ def list_i_name_phase(i, name, phase)
   puts "#{i}:  #{name}  --  #{phase}"
 end
 
-def start(entered_data)
-  while link_menu(menu, entered_data) != 0
-  end
+def start(entered_data, i)
+  return entered_data if i == 0
+  link_menu(menu, entered_data)
 end
 
 def menu
   puts "----- what's doing? -----"
   puts "0  exit"
-  puts "1  display entered list"
-  puts "2  add compony"
-  puts "3  edit jobsheet"
-  puts "4  sort menu"
+  puts "1  display list"
+  puts "2  add "
+  puts "3  edit"
+  puts "4  sort"
   puts "------------------------------"
   gets.to_i
 end
@@ -60,7 +60,6 @@ def link_menu(num, entered_data)
   case num
   when 0
     # 終了 exit
-    return 0
   when 1
     list_display(entered_data)
   when 2
@@ -72,9 +71,14 @@ def link_menu(num, entered_data)
   when 4
     sort_data = entered_data[12, entered_data.length - 1]
     sort_data.map!.with_index { |data, i| change_phase_number(data, i) }
-    sort_menu(sort_data)
+    sort_data = data_sort(sort_data, select_sort_menu(entered_data[8]).to_i)
     sort_data.map!.with_index { |data, i| change_number_phase(data, i) }
+    entered_data[12, entered_data.length - 1] = sort_data
+    # sort_data.map { |data| puts data.join(" | ") } #####
+    # puts "##############################################"
+    # puts entered_data.map { |data| data.join(" | ") } #####
   end
+  start(entered_data, num)
 end
 
 def list_display(entered_data)
@@ -135,54 +139,18 @@ def sort_phase(entered_data)
 end
 
 def change_phase_number(data, i)
-  current_phase = data[i][5]
-  # phase_array = set_phase
-  # phase_array.map.with_index{|phase, phase_i| data[i][5] = phase_i if phase == current_phase}
-  case current_phase
-  when "お見送り"
-    data[i][5] = 7
-  when "書類選考"
-    data[i][5] = 6
-  when "一次選考"
-    data[i][5] = 5
-  when "二次選考"
-    data[i][5] = 4
-  when "三次選考"
-    data[i][5] = 3
-  when "四次選考"
-    data[i][5] = 2
-  when "最終選考"
-    data[i][5] = 1
-  when "内定"
-    data[i][5] = 0
-  end
+  phase_array = set_phase
+  phase_array.map.with_index { |phase, phase_i| data[4] = phase_i if data[4] == phase }
+  return data
 end
 
 def change_number_phase(data, i)
-  current_phase = data[i][5]
-  # phase_array = set_phase
-  # phase_array.map.with_index{|phase, phase_i| data[i][5] = phase if phase_i == phase}
-  case phase
-  when 7
-    data[i][5] = "お見送り"
-  when 6
-    data[i][5] = "書類選考"
-  when 5
-    data[i][5] = "一次選考"
-  when 4
-    data[i][5] = "二次選考"
-  when 3
-    data[i][5] = "三次選考"
-  when 2
-    data[i][5] = "四次選考"
-  when 1
-    data[i][5] = "最終選考"
-  when 0
-    data[i][5] = "内定"
-  end
+  phase_array = set_phase
+  phase_array.map.with_index { |phase, phase_i| data[4] = phase if data[4] == phase_i }
+  return data
 end
 
-def edit_sheet(entered_data, company_i)
+def edit_sheet(sort_data, company_i)
   puts "------------------------------"
   puts entered_data[company_i].join(" | ")
   puts "what's company edit?"
@@ -242,9 +210,31 @@ def def(unimplemented)
   puts "------------------------------"
 end
 
-entered_data = set_data(w_sheet)
-start(entered_data)
+def select_sort_menu(data)
+  puts "------------------------------"
+  data.map.with_index { |column, i| puts "#{i} : #{column}" }
+  puts "------------------------------"
+  puts "番号を入力してください。"
+  gets.to_i
+  # input_number?(gets)
+end
 
+def data_sort(sort_data, sort_i)
+  return sort_data.sort_by { |data| data[sort_i] }
+end
+
+def edit_w_sheet(w_sheet, result_data)
+  result_data.map.with_index { |row_data, row_i|
+    row_data.map.with_index { |column_data, column_i|
+      w_sheet[row_i + 1, column_i + 1] = column_data
+    }
+  }
+end
+
+entered_data = set_data(w_sheet)
+result_data = start(entered_data, 1)
+edit_w_sheet(w_sheet, result_data)
+w_sheet.save
 # entered_data.map.with_index { |data, i|
 #   puts data.join("  ") if i == 8
 #   puts data.join(" | ") if i >= 12 && data[1] != ""
