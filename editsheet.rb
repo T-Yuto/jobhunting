@@ -58,17 +58,17 @@ def menu
 end
 
 def link_menu(num, entered_data)
+  list_data = entered_data[12, entered_data.length - 1]
   case num
   when 0
     # 終了 exit
   when 1
-    list_data = entered_data[12, entered_data.length - 1]
     list_display(list_data)
   when 2
     new_application = add_company
     entered_data << new_application
   when 3
-    list_display(entered_data)
+    list_display(list_data)
     edit_sheet(entered_data, select_number + 12)
   when 4
     sort_data = entered_data[12, entered_data.length - 1]
