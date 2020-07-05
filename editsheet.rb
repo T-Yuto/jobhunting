@@ -10,7 +10,7 @@ session = GoogleDrive::Session.from_config("config.json")
 ##スプレッドシート取得
 s_sheets = session.spreadsheet_by_url("https://docs.google.com/spreadsheets/d/1lmDJb49PxtkW-YHwjZpcovNpHsPybV9X8dhbgt8qnyM/edit#gid=1035003115")
 ##ワークシート取得
-w_sheet = s_sheets.worksheets[4]
+w_sheet = s_sheets.worksheets[0]
 # w_sheet[行, 列]で指定！！[row, column]  行: 番号、列: 英字
 
 ## 入力済みデータ取得
@@ -48,10 +48,10 @@ end
 def menu
   puts "----- what's doing? -----"
   puts "0  exit"
-  puts "1  display list"
-  puts "2  add "
-  puts "3  edit"
-  puts "4  sort"
+  puts "1  リスト表示（会社名：選考フェーズ）"
+  puts "2  追加"
+  puts "3  編集"
+  puts "4  並び替え"
   puts "------------------------------"
   gets.to_i
 end
@@ -74,9 +74,6 @@ def link_menu(num, entered_data)
     sort_data = data_sort(sort_data, select_sort_menu(entered_data[8]).to_i)
     sort_data.map!.with_index { |data, i| change_number_phase(data, i) }
     entered_data[12, entered_data.length - 1] = sort_data
-    # sort_data.map { |data| puts data.join(" | ") } #####
-    # puts "##############################################"
-    # puts entered_data.map { |data| data.join(" | ") } #####
   end
   start(entered_data, num)
 end
@@ -150,9 +147,9 @@ def change_number_phase(data, i)
   return data
 end
 
-def edit_sheet(sort_data, company_i)
+def edit_sheet(entered_data, company_i)
   puts "------------------------------"
-  puts entered_data[company_i].join(" | ")
+  puts entered_data[company_i].join(" ")
   puts "what's company edit?"
   entered_data[8].map.with_index { |column, i| puts "#{i} : #{column}" }
   puts "------------------------------"
@@ -160,6 +157,7 @@ def edit_sheet(sort_data, company_i)
   entered_data[company_i][num] = edit_company(entered_data, company_i, num)
 end
 
+##　編集メニュー
 def edit_company(entered_data, company_i, num)
   case num
   when 0
@@ -204,7 +202,7 @@ def edit_phase(entered_data, company_i)
   entered_data[company_i][4] = phase_array[gets.to_i]
 end
 
-def def(unimplemented)
+def unimplemented
   puts "------------------------------"
   puts "未実装です。"
   puts "------------------------------"
@@ -216,7 +214,6 @@ def select_sort_menu(data)
   puts "------------------------------"
   puts "番号を入力してください。"
   gets.to_i
-  # input_number?(gets)
 end
 
 def data_sort(sort_data, sort_i)
@@ -235,7 +232,3 @@ entered_data = set_data(w_sheet)
 result_data = start(entered_data, 1)
 edit_w_sheet(w_sheet, result_data)
 w_sheet.save
-# entered_data.map.with_index { |data, i|
-#   puts data.join("  ") if i == 8
-#   puts data.join(" | ") if i >= 12 && data[1] != ""
-# }
