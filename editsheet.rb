@@ -42,6 +42,7 @@ end
 
 def start(entered_data, i)
   return entered_data if i == 0
+  puts "応募数 ： #{entered_data.length - 12}"
   link_menu(menu, entered_data)
 end
 
@@ -61,9 +62,10 @@ def link_menu(num, entered_data)
   when 0
     # 終了 exit
   when 1
-    list_display(entered_data)
+    list_data = entered_data[12, entered_data.length - 1]
+    list_display(list_data)
   when 2
-    new_application = add_company(entered_data)
+    new_application = add_company
     entered_data << new_application
   when 3
     list_display(entered_data)
@@ -83,12 +85,11 @@ def list_display(entered_data)
   puts "----- list company  -----"
   puts "#########################"
   puts entered_data.map.with_index { |data, i|
-    return start(entered_data) if i >= 12 && data[1] == ""
-    list_i_name_phase(i - 12, data[1], data[4]) if i >= 12 && data[1] != ""
+    list_i_name_phase(i, data[1], data[4])
   }
 end
 
-def add_company(entered_data)
+def add_company
   puts "------------------------------"
   puts "Please input compony name."
   compony_name = gets.chomp
@@ -226,6 +227,16 @@ def edit_w_sheet(w_sheet, result_data)
       w_sheet[row_i + 1, column_i + 1] = column_data
     }
   }
+  w_sheet["E7"] = result_data.length - 12
+  w_sheet["F7"] = count_phase(result_data, "一次選考") - 1
+  w_sheet["G7"] = count_phase(result_data, "二次選考") - 1
+  w_sheet["H7"] = count_phase(result_data, "最終選考")
+end
+
+def count_phase(result_data, phase)
+  count = 0
+  result_data.map { |data| count += 1 if data.include?(phase) }
+  return count
 end
 
 entered_data = set_data(w_sheet)
