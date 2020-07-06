@@ -227,10 +227,10 @@ def edit_w_sheet(w_sheet, result_data)
       w_sheet[row_i + 1, column_i + 1] = column_data
     }
   }
-  w_sheet["E7"] = result_data.length - 12
-  w_sheet["F7"] = count_phase(result_data, "一次選考") - 1
-  w_sheet["G7"] = count_phase(result_data, "二次選考") - 1
-  w_sheet["H7"] = count_phase(result_data, "最終選考")
+  w_sheet["E7"] = "=COUNTA(B13:B999)"
+  w_sheet["F7"] = "=COUNTA(G13:G999)"
+  w_sheet["G7"] = "=COUNTA(H13:H999)"
+  w_sheet["H7"] = "=COUNTA(I13:I999)"
 end
 
 def count_phase(result_data, phase)
