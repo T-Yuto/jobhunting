@@ -2,6 +2,7 @@
 require "google_drive"
 require "date"
 require "nkf"
+require "pry"
 # Creates a session. This will prompt the credential via command line for the
 # first time and save it to config.json file for later usages.
 # See this document to learn how to create config.json:
@@ -121,9 +122,7 @@ end
 ########## 共通  #############################################
 ##  表示するもの
 def puts_fence_string(string)
-  puts "----------------------------------------------------------------------"
   puts "----------      #{string}      ----------"
-  puts "----------------------------------------------------------------------"
 end
 
 ##  番号：エレメント (一覧表示)
@@ -215,7 +214,6 @@ end
 
 def view_the_details(table_data)
   puts_fence_string("what's preview?")
-  puts
   select_data = table_data[select_number(table_data[12, table_data.length - 1]) + 12][0, 9]
   puts_array_join(table_data[8][0, 9])
   puts_array_join(select_data)
@@ -267,15 +265,15 @@ def edit_sheet(table_data, company_i)
   input_number_and_show_array(table_data[8])
   # table_data[8].map.with_index { |column, i| puts "#{i} : #{column}" }
   column_i = select_number(table_data[8])
-  edit_menu(table_data, company_i, column_i)
-  return table_data
+  return table_data = edit_menu(table_data, company_i, column_i)
 end
 
 ##  編集メニュー
 def edit_menu(table_data, company_i, column_i)
   case column_i
   when 0
-    edit_aspirations(table_data)
+    # edit_aspirations(table_data)
+    unimplemented
   when 3
     edit_application_route(table_data, column_i)
   when 4
@@ -285,20 +283,20 @@ def edit_menu(table_data, company_i, column_i)
   when 1, 2, 9, 10, 11, 12, 13
     edit_company_other_data(table_data, company_i, column_i)
   end
-  # unimplemented
-end
-
-## 志望順位編集
-def edit_aspirations(table_data)
-  table_data[12, table_data.length - 1].map.with_index { |company, company_i|
-    puts "#{company_i}, 志望順位 : #{company[0]}, 企業名 : #{company[1]}"
-  }
-  input_aspirations(rable_data)
   return table_data
 end
 
-def input_aspirations(table_data)
-end
+## 志望順位編集
+# def edit_aspirations(table_data)
+#   table_data[12, table_data.length - 1].map.with_index { |company, company_i|
+#     puts "#{company_i}, 志望順位 : #{company[0]}, 企業名 : #{company[1]}"
+#   }
+#   input_aspirations(rable_data)
+#   return table_data
+# end
+
+# def input_aspirations(table_data)
+# end
 
 ## 応募経路編集
 def edit_application_route(table_data, column_i)
@@ -327,8 +325,8 @@ end
 def edit_phase_schedule(table_data, company_i, column_i)
   puts "現在の#{table_data[8][column_i]} : #{table_data[company_i][column_i]}"
   table_data[company_i][4] = table_data[8][column_i].delete("日程")
-  # table_data[company_i][column_i] =
-  input_schedule
+  table_data[company_i][column_i] = input_schedule
+  return table_data
 end
 
 def input_schedule
