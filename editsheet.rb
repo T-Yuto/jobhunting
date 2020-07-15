@@ -12,7 +12,7 @@ session = GoogleDrive::Session.from_config("config.json")
 ##スプレッドシート取得
 s_sheets = session.spreadsheet_by_url("https://docs.google.com/spreadsheets/d/1lmDJb49PxtkW-YHwjZpcovNpHsPybV9X8dhbgt8qnyM/edit#gid=1035003115")
 ##ワークシート取得
-w_sheet = s_sheets.worksheets[4]
+w_sheet = s_sheets.worksheets[0]
 # w_sheet[行, 列]で指定！！[row, column]  行: 番号、列: 英字
 
 ##########################################################################################
@@ -76,20 +76,6 @@ def set_day
   set_num_array(max)
 end
 
-## 並び替え用配列変更
-def convert_sort_data(sort_data)
-  sort_data.map! { |data| change_phase_string_to_number(data) }
-  sort_data.map! { |data| data[0] = 999 if data[0] == "" }
-  return sort_data
-end
-
-## 並び替え用配列元に戻す
-def resconstitute_sort_data(sort_data)
-  sort_data.map! { |data| change_phase_number_to_string(data) }
-  sort_data.map! { |data| data[0] = "" if data[0] == 999 }
-  return sort_data
-end
-
 ##########################################################################################
 ############# menu methods ###############
 ## 一覧表示＋詳細表示メニュー
@@ -112,6 +98,7 @@ end
 ## 並び替えメニュー
 def sort_method(table_data)
   sort_data = convert_sort_data(table_data[12, table_data.length - 1])
+  convert_sort_data(table_data[12, table_data.length - 1])
   sort_data = data_sort(sort_data, select_sort_menu(table_data[8]).to_i)
   sort_data = resconstitute_sort_data(sort_data)
   table_data[12, table_data.length - 1] = sort_data
@@ -235,14 +222,15 @@ def add_company
 end
 
 def confirmation?(input)
-  puts "#{input}"
+  puts "-----  #{input}  -----"
   puts "この内容で良いですか？"
   return yes_or_no?
 end
 
 def input_type_in_column(input_column)
   puts_fence_string(input_column)
-  return result if confirmation?(result = gets.chomp)
+  result = gets.chomp
+  return result if confirmation?(result)
   input_type_in_column(input_column)
 end
 
@@ -376,10 +364,24 @@ def data_sort(sort_data, sort_i)
   return sort_data.sort_by { |data| data[sort_i] }
 end
 
+## 並び替え用配列変更
+def convert_sort_data(table_data)
+  table_data.map! { |data| change_phase_string_to_number(data) }
+  # table_data.map! { |data| data[0] = 999 if data[0] == "" }
+  return table_data
+end
+
 def change_phase_string_to_number(data)
   phase_array = set_phase
   phase_array.map.with_index { |phase, phase_i| data[4] = phase_i if data[4] == phase }
   return data
+end
+
+## 並び替え用配列元に戻す
+def resconstitute_sort_data(table_data)
+  table_data.map! { |data| change_phase_number_to_string(data) }
+  # table_data.map! { |data| data[0] = "" if data[0] == 999 }
+  return table_data
 end
 
 def change_phase_number_to_string(data)
@@ -396,17 +398,17 @@ def result_w_sheet(w_sheet, result_data)
       w_sheet[row_i + 1, column_i + 1] = column_data
     }
   }
-  w_sheet["E7"] = "=COUNTA(B13:B999)"
-  w_sheet["F7"] = "=COUNTA(G13:G999)"
-  w_sheet["G7"] = "=COUNTA(H13:H999)"
-  w_sheet["H7"] = "=COUNTA(I13:I999)"
+  w_sheet["F7"] = "=COUNTA(B13:B999)"
+  w_sheet["G7"] = "=COUNTA(G13:G999)"
+  w_sheet["H7"] = "=COUNTA(H13:H999)"
+  w_sheet["I7"] = "=COUNTA(I13:I999)"
 end
 
-def count_phase(result_data, phase)
-  count = 0
-  result_data.map { |data| count += 1 if data.include?(phase) }
-  return count
-end
+# def count_phase(result_data, phase)
+#   count = 0
+#   result_data.map { |data| count += 1 if data.include?(phase) }
+#   return count
+# end
 
 ##########################################################################################
 
