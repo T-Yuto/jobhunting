@@ -47,33 +47,24 @@ def set_menu
   return ["終了", "リスト表示（会社名：選考フェーズ）", "新規追加", "編集", "並び替え"]
 end
 
-## 月と日の配列作成用
-def set_num_array(max)
-  array = []
-  (1..max).map { |num| array << num }
-  return array
-end
-
 ## 月の配列作成
 def set_month
-  set_num_array(12)
+  [*1..12]
 end
 
 ## 日の配列作成（1,3,5,7,8,10,12 : 31, 4,6,9,11 : 30, 2 : 28 or 29）
 def set_day
   today_array = Date.today.strftime.split("-")
-  if today_array[1] == 1 || today_array[1] == 3 || today_array[1] == 5 || today_array[1] == 7 || today_array[1] == 8 || today_array[1] == 10 || today_array[1] == 12
+  case today_array[1] ## 月
+  when 1, 3, 5, 7, 8, 10, 12
     max = 31
-  elsif today_array[1] == 2
-    if today_array[0] % 4 == 0
-      max = 29
-    else
-      max = 28
-    end
-  else
+  when 4, 6, 9, 11
     max = 30
+  when 2
+    max = 29 if today_array[0] % 4 == 0
+    max = 28 if today_array[0] % 4 != 0
   end
-  set_num_array(max)
+  [*1..max]
 end
 
 ##########################################################################################
@@ -403,12 +394,6 @@ def result_w_sheet(w_sheet, result_data)
   w_sheet["H7"] = "=COUNTA(H13:H999)"
   w_sheet["I7"] = "=COUNTA(I13:I999)"
 end
-
-# def count_phase(result_data, phase)
-#   count = 0
-#   result_data.map { |data| count += 1 if data.include?(phase) }
-#   return count
-# end
 
 ##########################################################################################
 
