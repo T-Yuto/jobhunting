@@ -9,17 +9,17 @@ class Edit
   end
 
   def edit
-    set_data
-    start(1)
-    result_w_sheet
+    result_w_sheet(start(set_data, 1))
     @w_sheet
   end
 
+  private
+
   ########## メニュー  #############################################
-  def start(i)
-    return if i == 0
-    puts "-- 応募数 ： #{@table_data.length - 12} --"
-    link_menu(menu)
+  def start(table_data, i)
+    return table_data if i == 0
+    puts "-- 応募数 ： #{table_data.length - 12} --"
+    link_menu(table_data, menu)
   end
 
   def menu
@@ -29,64 +29,66 @@ class Edit
     return select_number(menu_array)
   end
 
-  def link_menu(num)
+  def link_menu(table_data, num)
     case num
     when 0
       ## 終了 exit ##
     when 1
-      show_method
+      show_method(table_data)
     when 2
-      new_method
+      new_method(table_data)
     when 3
-      edit_method
+      edit_method(table_data)
     when 4
-      sort_method
+      sort_method(table_data)
     end
-    start(num)
+    start(table_data, num)
   end
 
   ## 一覧表示＋詳細表示メニュー
-  def show_method
-    display_company_list
-    view_the_details if confirm_view_the_details
+  def show_method(table_data)
+    display_company_list(table_data)
+    view_the_details(table_data) if confirm_view_the_details
   end
 
   ## 新規登録メニュー
-  def new_method
-    company_name = input_type_in_column("Please input compony name.")
+  def new_method(table_data)
+    company_name = input_type_in_column("Please input compony name.") ##会社名入力
     puts "-----     compony name : #{company_name}     -----"
-    company_place = input_type_in_column("Please input compony place.")
+    company_place = input_type_in_column("Please input compony place.") ##勤務地入力
     puts "-----     compony place : #{company_place}     -----"
     application_route = set_application_route
-    route_i = select_application_route(application_route)
+    route_i = select_application_route(application_route)  ## 応募媒体入力
     puts "-----     application route : #{application_route[route_i]}     -----"
-    @table_data.push(["", company_name, company_place, application_route[route_i], "書類選考", Date.today, "", "", "", "", "", ""])
+    ## 応募情報を追加
+    table_data.push(["", company_name, company_place, application_route[route_i], "書類選考", Date.today, "", "", "", "", "", ""])
+    table_data
   end
 
   ## 編集メニュー
-  def edit_method
-    display_company_list
-    edit_sheet(select_number(@table_data[12..-1]) + 12)
+  def edit_method(table_data)
+    display_company_list(table_data)
+    edit_sheet(table_data, select_number(table_data[12..-1]) + 12)
   end
 
   ## 並び替えメニュー
-  def sort_method
-    sort_data = convert_sort_data(@table_data[12..-1])                      ## 選考段階を数値に変換
-    sort_data = data_sort(sort_data, select_sort_menu(@table_data[8]).to_i) ## 並び替え
+  def sort_method(table_data)
+    sort_data = convert_sort_data(table_data[12..-1])                      ## 選考段階を数値に変換
+    sort_data = data_sort(sort_data, select_sort_menu(table_data[8]).to_i) ## 並び替え
     sort_data = resconstitute_sort_data(sort_data)                          ## 選考段階を戻す
-    @table_data[12..-1] = sort_data                                         ## 元データに保存
+    table_data[12..-1] = sort_data                                         ## 元データに保存
   end
 
   def set_data
-    @table_data = []
+    table_data = []
     row_i = 1
     while true
-      return if row_i > 13 && @w_sheet[row_i, 2] == ""
+      return table_data if row_i > 13 && @w_sheet[row_i, 2] == ""
       line = []
       for column_i in 1..14
         line.push(@w_sheet[row_i, column_i])
       end
-      @table_data.push(line)
+      table_data.push(line)
       row_i += 1
     end
   end
@@ -97,8 +99,8 @@ class Edit
     return line
   end
 
-  def result_w_sheet
-    @table_data.map.with_index(1) { |row, row_i|
+  def result_w_sheet(table_data)
+    table_data.map.with_index(1) { |row, row_i|
       row.map.with_index(1) { |column, column_i|
         @w_sheet[row_i, column_i] = column
       }
@@ -190,9 +192,9 @@ class Edit
 
   ##############  メニュー1  #############################################
   #####  一覧表示＋詳細表示  #####
-  def display_company_list
+  def display_company_list(table_data)
     puts_fence_string("company list")
-    @table_data[12..-1].map.with_index { |data, i|
+    table_data[12..-1].map.with_index { |data, i|
       puts "---------------------------------------------"
       puts "#{i}:  #{data[1]} | #{data[4]}"
     }
@@ -203,10 +205,10 @@ class Edit
     return yes_or_no?
   end
 
-  def view_the_details
+  def view_the_details(table_data)
     puts_fence_string("what's preview?")
-    select_data = @table_data[select_number(@table_data[12..-1]) + 12][0, 9]
-    puts_array_join(@table_data[8][0, 9])
+    select_data = table_data[select_number(table_data[12..-1]) + 12][0, 9]
+    puts_array_join(table_data[8][0, 9])
     puts_array_join(select_data)
   end
 
@@ -235,37 +237,37 @@ class Edit
   ##############  メニュー3  #############################################
   #####  表データ編集  #####
 
-  def edit_sheet(company_i)
+  def edit_sheet(table_data, company_i)
     puts "------------------------------"
-    puts_array_join(@table_data[8])
-    puts_array_join(@table_data[company_i])
+    puts_array_join(table_data[8])
+    puts_array_join(table_data[company_i])
     puts "     what's company edit?     "
-    input_number_and_show_array(@table_data[8])
-    column_i = select_number(@table_data[8])
-    @table_data = edit_menu(company_i, column_i)
+    input_number_and_show_array(table_data[8])
+    column_i = select_number(table_data[8])
+    table_data = edit_menu(table_data, company_i, column_i)
   end
 
   ##  編集メニュー
-  def edit_menu(company_i, column_i)
+  def edit_menu(table_data, company_i, column_i)
     case column_i
     when 0
       # edit_aspirations
       unimplemented
     when 3
-      edit_application_route(column_i)
+      edit_application_route(table_data, company_i, column_i)
     when 4
-      edit_phase(company_i)
+      edit_phase(table_data, company_i)
     when 5, 6, 7, 8
-      edit_phase_schedule(company_i, column_i)
+      edit_phase_schedule(table_data, company_i, column_i)
     when 1, 2, 9, 10, 11, 12, 13
-      edit_company_other_data(company_i, column_i)
+      edit_company_other_data(table_data, company_i, column_i)
     end
   end
 
   ## 志望順位編集
-  # def edit_aspirations
+  # def edit_aspirations(table_data)
   #     table_data = []
-  #       table_data = @table_data[12..-1]
+  #       table_data = table_data[12..-1]
   #
   #   table_data.map.with_index { |company, company_i|
   #     puts "#{company_i}, 志望順位 : #{company[0]}, 企業名 : #{company[1]}"
@@ -285,34 +287,35 @@ class Edit
   #   end
 
   ## 応募経路編集
-  def edit_application_route(column_i)
+  def edit_application_route(table_data, company_i, column_i)
     application_route = set_application_route
-    puts "現在の#{@table_data[8][column_i]} : #{application_route[column_i]}"
+    puts "現在の#{table_data[8][column_i]} : #{application_route[column_i]}"
     puts route = application_route[input_number_and_show_array(application_route)]
-    return route if yes_or_no?
-    edit_application_route(column_i)
+    edit_application_route(table_data, column_i) unless yes_or_no?
+    table_data[company_i][column_i] = route
+    table_data
   end
 
   ## 選考フェーズ編集
-  def edit_phase(company_i)
-    puts "#{@table_data[company_i][1]} : #{@table_data[company_i][4]}"
-    select_phase
+  def edit_phase(table_data, company_i)
+    puts "#{table_data[company_i][1]} : #{table_data[company_i][4]}"
+    table_data[company_i][4] = select_phase
+    table_data
   end
 
   def select_phase
     phase_array = set_phase
     input_number_and_show_array(phase_array)
     phase_i = select_number(phase_array)
-    return phase_array[phase_i] if confirmation?(phase_array[phase_i])
-    select_phase
+    confirmation?(phase_array[phase_i]) ? phase_array[phase_i] : select_phase
   end
 
   ## 選考日程編集
   def edit_phase_schedule(company_i, column_i)
-    puts "現在の#{@table_data[8][column_i]} : #{@table_data[company_i][column_i]}"
-    @table_data[company_i][4] = @table_data[8][column_i].delete("日程")
-    @table_data[company_i][column_i] = input_schedule
-    return @table_data
+    puts "現在の#{table_data[8][column_i]} : #{table_data[company_i][column_i]}"
+    table_data[company_i][4] = table_data[8][column_i].delete("日程")
+    table_data[company_i][column_i] = input_schedule
+    table_data
   end
 
   def input_schedule
@@ -339,16 +342,17 @@ class Edit
   end
 
   ## その他の情報の編集
-  def edit_company_other_data(company_i, column_i)
-    column_name = @table_data[8][column_i]
-    temporary_data = @table_data[company_i][column_i]
+  def edit_company_other_data(table_data, company_i, column_i)
+    column_name = table_data[8][column_i]
+    temporary_data = table_data[company_i][column_i]
     puts "現在の#{column_name} ： #{temporary_data}"
     case column_i
     when 1, 2
-      @table_data[company_i][column_i] = input_type_in_column(column_name)
+      table_data[company_i][column_i] = input_type_in_column(column_name)
     else
-      @table_data[company_i][column_i] = "#{temporary_data}\n" + "#{input_type_in_column(column_name)}"
+      table_data[company_i][column_i] = "#{temporary_data}\n" + "#{input_type_in_column(column_name)}"
     end
+    table_data
   end
 
   ##############  メニュー4  #############################################
@@ -365,7 +369,7 @@ class Edit
   ## 並び替え用配列変更
   def convert_sort_data(table_data)
     table_data.map! { |data| change_phase_string_to_number(data) }
-    # @table_data.map! { |data| data[0] = 999 if data[0] == "" }
+    # table_data.map! { |data| data[0] = 999 if data[0] == "" }
   end
 
   def change_phase_string_to_number(data)
@@ -377,7 +381,7 @@ class Edit
   ## 並び替え用配列元に戻す
   def resconstitute_sort_data(table_data)
     table_data.map! { |data| change_phase_number_to_string(data) }
-    # @table_data.map! { |data| data[0] = "" if data[0] == 999 }
+    # table_data.map! { |data| data[0] = "" if data[0] == 999 }
   end
 
   def change_phase_number_to_string(data)
