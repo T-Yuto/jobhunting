@@ -167,9 +167,13 @@ class Edit
     return check_input_index(array)
   end
 
+  def gets_hankaku_to_i
+    gets.tr("Ａ-Ｚ０-９", "A-Z0-9").to_i
+  end
+
   def check_input_index(array)
     max_i = array.length - 1
-    number = gets.to_i
+    number = gets_hankaku_to_i
     return number if number <= max_i && number >= 0
     puts "入力は、#{0} から #{max_i} の範囲で入力してください。"
     check_input_index(array)
@@ -180,9 +184,8 @@ class Edit
     puts "1 : YES"
     puts "2 : NO"
     puts "------------------------------"
-    input = gets.chomp
-    input.upcase!
-    return true if input == "1" || input == "１" || input == "YES" || input == "Y"
+    input = gets_hankaku_to_i
+    return true if input == 1
     false
   end
 
@@ -335,7 +338,7 @@ class Edit
 
   def check_shcedule(array)
     max_i = array.length
-    number = gets.to_i
+    number = gets.tr("Ａ-Ｚ０-９", "A-Z0-9").to_i
     return number if number <= max_i && number >= 1
     puts "入力は、#{1} から #{max_i} の範囲で入力してください。"
     check_shcedule(array)
